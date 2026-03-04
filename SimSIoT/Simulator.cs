@@ -16,6 +16,7 @@ namespace SimSIoT
 {
     public partial class Simulator : Form
     {
+        // Lists to store users and devices in the simulation
         static List<User> list_User;
         static List<Device> list_SR;
         static List<Device> list_SP;
@@ -35,6 +36,7 @@ namespace SimSIoT
             ChartType = SeriesChartType.Spline,
             BorderWidth = 2
         };
+        // Series for plotting success trust of service requesters
 
         public Series seriesTrustValueOfRS = new System.Windows.Forms.DataVisualization.Charting.Series
         {
@@ -45,6 +47,7 @@ namespace SimSIoT
             ChartType = SeriesChartType.Spline,
             BorderWidth = 2
         };
+        // Series for plotting trust value of service requesters
 
         public Series seriesSatisficationOfRS = new System.Windows.Forms.DataVisualization.Charting.Series
         {
@@ -55,8 +58,10 @@ namespace SimSIoT
             ChartType = SeriesChartType.Spline,
             BorderWidth = 2
         };
+        // Series for plotting satisfaction of service requesters
 
         public System.Diagnostics.Stopwatch TimeParameter = new System.Diagnostics.Stopwatch { };
+    // Stopwatch to measure simulation time
 
         //************************************************SIMIULATOR*******************************************************************//
         /// <summary>
@@ -77,14 +82,17 @@ namespace SimSIoT
         public Simulator()
         {
             InitializeComponent();
+            // Initialize the form and simulation variables
             int time = 0;
             Random r = new Random();
+            // Random number generator for selecting devices
             int selectedSR_Id, selectedSP_Good_Id, selectedSP_Bad_Id;
             Device selected_Device_SR, selected_Device_GoodSP, selected_Device_BadSP;
             list_User = new List<User>();
             list_SR = new List<Device>();
             list_SP = new List<Device>();
             list_Dev = new List<Device>();
+            // Dictionaries to store selected service providers/requesters and results
             Dictionary<Device, double> selected_SP = new Dictionary<Device, double>();
             Dictionary<Device, double> selected_SR = new Dictionary<Device, double>();
             Dictionary<int, double> result_1 = new Dictionary<int, double>();
@@ -97,13 +105,16 @@ namespace SimSIoT
             Dictionary<int, double> result_7 = new Dictionary<int, double>();
 
             TimeParameter.Start();
+            // Start the simulation timer
             this.chartSuccessTrustOfSR.Series.Add(seriesSuccessTrustOfRS);
             this.chartTrustValueOfSR.Series.Add(seriesTrustValueOfRS);
             this.chartSatisfication.Series.Add(seriesSatisficationOfRS);
+            // Add chart series to the respective charts
 
             ////*****step 1: create devices include service requesters and service providers
             //*****Selected one Node of SR to show the results of that
             ////*****Id of SP starts from 1 to 300 and for SP starts from 300 to 600
+            // Select random IDs for SR and SP devices
             selectedSR_Id = r.Next(300, 600);
             selectedSP_Good_Id = r.Next(1, 300);
             selectedSP_Bad_Id = r.Next(1, 300);
@@ -114,10 +125,12 @@ namespace SimSIoT
 
             //Create_SP_SR();
             Create_SP_SR_RealData(selectedSR_Id, selectedSP_Good_Id, selectedSP_Bad_Id);
+            // Create devices and assign roles using real data
 
             selected_Device_SR = list_Dev.Single(p => p.Id.Equals(selectedSR_Id));
             selected_Device_GoodSP = list_Dev.Single(p => p.Id.Equals(selectedSP_Good_Id));
             selected_Device_BadSP = list_Dev.Single(p => p.Id.Equals(selectedSP_Bad_Id));
+            // Get references to the selected SR and SP devices
            
             ////*****Transcation will do in "K" round
             for (int k = 1; k <= 15; k++)
@@ -148,9 +161,7 @@ namespace SimSIoT
                     list_SP.Single(p => p.Id.Equals(SP.Id)).Selected_SR = selected_SR;
 
                 }
-
-                ////****** ?????????????????? if task is not done??
-
+                
                 ////*****step 6:Learning by SP and SR
                 foreach (Device SR in list_SR)
                 {
@@ -301,199 +312,6 @@ namespace SimSIoT
         }
 
         /// <summary>
-        /// firs step to create Service Provider and Service Requester
-        /// </summary>
-        //public void Create_SP_SR()
-        //{
-        //    int j = 1;
-        //    Random r = new Random();
-        //    StreamWriter sw_User = new StreamWriter("..\\..\\..\\..\\User.txt");
-        //    StreamWriter sw_SP = new StreamWriter("..\\..\\..\\..\\SP.txt");
-        //    StreamWriter sw_SR = new StreamWriter("..\\..\\..\\..\\SR.txt");
-        //    int service_num = 1;
-        //    int SR_bad_num = 1, SP_bad_num = 1;
-
-        //    ////*****Create Users
-        //    for (int i = 1; i <= 20; i++)
-        //    {
-        //        User user=User.GetUser(i, r.Next(1, 5));
-               
-        //        for (int k = 1; k < 5; k++)
-        //        {
-        //            int link_id = r.Next(1, 200);
-        //            while (user.Links.Contains(link_id))
-        //                link_id = r.Next(1, 200);
-        //            user.Links.Add(link_id);
-        //        }
-        //        list_User.Add(user);
-        //    }
-        //    ////*****Devices as Service Providers
-        //    for (int i = 1; i < 100; i++)
-        //    {
-        //        Device dev = new Device();
-        //        dev.Id = i;
-        //        dev.Role = Device.Device_Role.SP;
-        //        if (service_num == 5)
-        //            service_num = 1;
-        //        else
-        //            service_num++;
-            
-        //        dev.Energy = r.Next(1, 4);
-        //        dev.Computation = r.Next(1, 4);
-        //        dev.Current_Location = DomainObjects.Unit.GetUnitByNumber(r.Next(1, 10));
-        //        dev.Visited_Locations = new List<Unit.Type>();
-        //        dev.Visited_Locations.Add(dev.Current_Location);
-        //        //dev.Potential_SP = new List<Dictionary<Device, double>>();
-        //        //dev.Trusthworthiness_SP = new List<Dictionary<Device, double>>();
-        //        dev.Potential_SR = new Dictionary<Device, double>();
-        //        dev.Trusthworthiness_SR = new Dictionary<Device, double>();
-        //        dev.Visited_SR_Feedback = new Dictionary<Device, List<Context_Feedback>>();
-        //        dev.Visited_SP_Feedback = new Dictionary<Device, List<Context_Feedback>>();
-
-        //        ////*****With node bads
-        //        //// 10% bad nodes // 20% good nodes // 30% good nodes // 40% good nodes // 50% good nodes
-        //        //if (SP_bad_num != 20)
-        //        //{
-        //        //    dev.Services = Service.GetServiceForSP(service_num, r.Next(1, 4), r.Next(1, 10), 3, 3, 1, 1);
-        //        //    dev.ground_Trust = Device.NextDouble(0.1, 0.2);
-        //        //    SP_bad_num++;
-        //        //}
-        //        //else
-        //        //{
-        //        //    //dev.Services = Service.GetServiceForSP(r.Next(1, 5), r.Next(1, 4), r.Next(1, 10), r.Next(1, 3), r.Next(1, 3), 1, 1);
-        //        //    dev.Services = Service.GetServiceForSP(service_num, r.Next(1, 4), r.Next(1, 10), r.Next(1, 3), r.Next(1, 3), 1, 1);
-        //        //    dev.ground_Trust = Device.NextDouble(0.80, 0.95);
-        //        //}
-
-        //        //*****Without node bads
-        //        dev.Services = Service.GetServiceForSP(service_num, r.Next(1, 4), r.Next(1, 10), r.Next(1, 3), r.Next(1, 3), 1, 1);
-        //        dev.ground_Trust = Device.NextDouble(0.80, 0.95);
-
-        //        int user_ID= r.Next(1,21);
-        //        while (list_User.Where(p=>p.Id.Equals(user_ID)).Single().Devices.Count() >= 6)
-        //            user_ID = r.Next(1, 21);
-        //        dev.User = list_User.Where(p => p.Id.Equals(user_ID)).Single();
-        //        list_User.Where(p => p.Id.Equals(user_ID)).Single().Devices.Add(dev.Id);
-
-        //        //Writing in the text file 
-        //        try
-        //        {
-        //            //Write a line of text
-        //            sw_SP.WriteLine("Id_" + dev.Id + ",Role_1" + ",ServiceNum_" + Service.GetNumberByService(dev.Services.Services_Provided) + ",ServiceTime_" + Service.GetNumberByTime(dev.Services.Time_Service)
-        //                + ",ServiceLocation_" + Unit.GetNumberByUnit(dev.Services.Location_Service) + ",ServiceTimeResponce_" + Service.GetNumberByTimeResponse(dev.Services.Time_Response) + ",ServiceOoS_" + Service.GetNumberByQoS(dev.Services.OoS)
-        //                + ",ServiceTimeUsing_" + Service.GetNumberByTimeUsing(dev.Services.Time_Using) + ",ResourceUsing_" + Service.GetNumberByReosurcesUsing(dev.Services.Reosurces_Using)
-        //                + ",Energy_" + dev.Energy + ",Computation_" + dev.Computation + ",CurrentLocation_" + Unit.GetNumberByUnit(dev.Current_Location) + ",groundTrust_" + dev.ground_Trust
-        //                + ",UserId_" + dev.User.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Console.WriteLine("Exception: " + e.Message);
-        //        }
-        //        finally
-        //        {
-        //            Console.WriteLine("Executing finally block.");
-        //        }
-
-        //        list_SP.Add(dev);
-        //        list_Dev.Add(dev);
-        //    }
-        //    sw_SP.Close();
-
-        //    ////*****Devices as Service Requesters
-        //    for (int i = 100; i < 200; i++)
-        //    {
-        //        Device dev = new Device();
-        //        dev.Id = i;
-        //        dev.Role = Device.Device_Role.SR;
-        //        if (service_num == 5)
-        //            service_num = 1;
-        //        else
-        //            service_num++;
-               
-        //        dev.Energy = r.Next(1, 4);
-        //        dev.Computation = r.Next(1, 4);
-        //        dev.Current_Location = DomainObjects.Unit.GetUnitByNumber(r.Next(1, 10));
-        //        dev.Visited_Locations = new List<Unit.Type>();
-        //        dev.Visited_Locations.Add(dev.Current_Location);
-        //        //dev.Potential_SP = new List<Dictionary<Device, double>>();
-        //        //dev.Trusthworthiness_SP = new List<Dictionary<Device, double>>();
-        //        dev.Potential_SP = new Dictionary<Device, double>();
-        //        dev.Trusthworthiness_SP = new Dictionary<Device, double>();
-        //        dev.Visited_SP_Feedback = new Dictionary<Device, List<Context_Feedback>>();
-        //        dev.Visited_SR_Feedback = new Dictionary<Device, List<Context_Feedback>>();
-        //        dev.ground_Trust = Device.NextDouble(0.85, 0.95);
-
-        //        ////*****With node bads
-        //        // 10% bad nodes // 20% good nodes // 30% good nodes // 40% good nodes // 50% good nodes
-        //        //if (SR_bad_num != 20)
-        //        //{
-        //        //    //dev.Services = Service.GetServiceForSR(r.Next(1, 5), r.Next(1, 4), r.Next(1, 10), 1, 1, r.Next(1, 3), r.Next(1, 3), r.Next(1, 3), r.Next(1, 3));
-        //        //    dev.Services = Service.GetServiceForSR(service_num, r.Next(1, 4), r.Next(1, 10), 1, 1, 3, 3, r.Next(1, 3), r.Next(1, 3));
-        //        //    dev.ground_Trust = Device.NextDouble(0.1, 0.2);
-        //        //    SR_bad_num++;
-        //        //}
-        //        //else
-        //        //{
-        //        //    dev.Services = Service.GetServiceForSR(service_num, r.Next(1, 4), r.Next(1, 10), 1, 1, r.Next(1, 3), r.Next(1, 3), r.Next(1, 3), r.Next(1, 3));
-        //        //    dev.ground_Trust = Device.NextDouble(0.85, 0.95);
-
-        //        //}
-
-        //        //*****Without node bads
-        //        dev.Services = Service.GetServiceForSR(service_num, r.Next(1, 4), r.Next(1, 10), 1, 1, r.Next(1, 3), r.Next(1, 3), r.Next(1, 3), r.Next(1, 3));
-        //        dev.ground_Trust = Device.NextDouble(0.85, 0.95);
-
-        //        int user_ID = r.Next(1, 21);
-        //        while (list_User.Where(p => p.Id.Equals(user_ID)).Single().Devices.Count() >= 12)
-        //            user_ID = r.Next(1, 20);
-        //        dev.User = list_User.Where(p => p.Id.Equals(user_ID)).Single();
-        //        list_User.Where(p => p.Id.Equals(user_ID)).Single().Devices.Add(dev.Id);
-
-        //        //Writing in the text file 
-        //        try
-        //        {
-        //            //Write a line of text
-        //            sw_SR.WriteLine("Id_" + dev.Id + ",Role_2" + ",ServiceNum_" + Service.GetNumberByService(dev.Services.Services_Requetsed) + ",ServiceTime_" + Service.GetNumberByTime(dev.Services.Time_Service)
-        //                + ",ServiceLocation_" + Unit.GetNumberByUnit(dev.Services.Location_Service) + ",ServiceTimeResponce_" + Service.GetNumberByTimeResponse(dev.Services.Time_Response) + ",ServiceOoS_" + Service.GetNumberByQoS(dev.Services.OoS)
-        //                + ",ServiceTimeUsing_" + Service.GetNumberByTimeUsing(dev.Services.Time_Using) + ",ResourceUsing_" + Service.GetNumberByReosurcesUsing(dev.Services.Reosurces_Using)
-        //                + ",Energy_" + dev.Energy + ",Computation_" + dev.Computation + ",CurrentLocation_" + Unit.GetNumberByUnit(dev.Current_Location) + ",groundTrust_" + dev.ground_Trust
-        //                + ",UserId_" + dev.User.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Console.WriteLine("Exception: " + e.Message);
-        //        }
-        //        finally
-        //        {
-        //            Console.WriteLine("Executing finally block.");
-        //        }
-
-        //        list_SR.Add(dev);
-        //        list_Dev.Add(dev);
-        //    }
-        //    sw_SR.Close();
-
-        //    //
-        //    foreach (User user in list_User)
-        //    {
-        //        try
-        //        {
-        //            //Write a line of text
-        //            sw_User.WriteLine("UserId_" + user.Id + ",UserProf_" + User.GetNumberByProf(user.Profession) + ",Links_" + string.Join("/", user.Links) + ",Devices_"+ string.Join("/", user.Devices));
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Console.WriteLine("Exception: " + e.Message);
-        //        }
-        //        finally
-        //        {
-        //            Console.WriteLine("Executing finally block.");
-        //        }
-        //    }
-        //    sw_User.Close();
-        //}
-
-        /// <summary>
         /// Read node information from facebook_combined.txt
         /// Number of selected nodes is equal with 200
         /// The links of nodes is checked to be sure that are less than 200 b.c we will create just nodeId from 1 to 200 
@@ -541,6 +359,10 @@ namespace SimSIoT
             return Nodes;
         }
 
+        /// <summary>
+        /// Reads community information from a dataset file and constructs a dictionary mapping community IDs to lists of node IDs.
+        /// </summary>
+        /// <returns>Dictionary of community IDs and their member node IDs.</returns>
         public Dictionary<int, List<int>> ReadCommunity_SP_SR()
         {
             string[] lines_Community = System.IO.File.ReadAllLines("..\\..\\..\\..\\circles");
@@ -1114,6 +936,10 @@ namespace SimSIoT
 
         //************************************************GENERAL FUNCTIONS*************************************************************//
 
+        /// <summary>
+        /// Calculates the location distance between a service requester and provider.
+        /// </summary>
+        /// <returns>Distance as an integer (1 if same location, otherwise inverse of absolute difference).</returns>
         public int Get_Location_Distance(Device SR, Device SP)
         {
             int distance=1;
@@ -1126,6 +952,10 @@ namespace SimSIoT
             return distance;
         }
 
+        /// <summary>
+        /// Calculates the time distance between a service requester and provider.
+        /// </summary>
+        /// <returns>Distance as an integer (1 if same time, otherwise inverse of absolute difference).</returns>
         public int Get_Time_Distance(Device SR, Device SP)
         {
             int distance = 1;
@@ -1137,6 +967,10 @@ namespace SimSIoT
             return distance;
         }
 
+        /// <summary>
+        /// Calculates the profession distance between a service requester and provider.
+        /// </summary>
+        /// <returns>Distance as an integer (1 if same profession, otherwise 0.5).</returns>
         public int Get_Profession_Distance(Device SR, Device SP)
         {
             int distance = 1;
@@ -1148,12 +982,19 @@ namespace SimSIoT
             return distance;
         }
 
+        /// <summary>
+        /// Placeholder for decay calculation based on feedbacks (currently returns 1).
+        /// </summary>
         public double Get_Decay(List<double> feedbacks)
         {
             double decay = 1;
             return decay;
         }
 
+        /// <summary>
+        /// Calculates the coefficient of variation for a list of feedback values.
+        /// </summary>
+        /// <returns>Coefficient of variation (standard deviation divided by mean).</returns>
         public double Get_Variation(List<double> feedbacks)
         {
             //double Coefficient_variation = 1;
@@ -1190,63 +1031,6 @@ namespace SimSIoT
         /// <summary>
         /// This function is for next transactions in next rounds
         /// </summary>
-        //public void Setup_NewRound()
-        //{
-        //    Random r = new Random();
-        //    List<int> count = new List<int>();
-        //    int number = 0;
-
-        //    ////***** In real word, some service requesters change to service providers and visa versa
-        //    for (int i = 1; i < 20; i++)
-        //    {
-        //        ////***** Selecting a random number from the id ranges of SR and SP which should not be duplicate
-        //        number = r.Next(1, 200);
-        //        while (count.Contains(number))
-        //        {
-        //            number = r.Next(1, 200);
-        //        }
-        //        count.Add(number);
-
-        //        //////***** Finding the divice with the selected id to change the its role 
-        //        Device dev = list_Dev.Single(p => p.Id.Equals(number));
-        //        if (dev.Role == Device.Device_Role.SP)
-        //        {
-        //            dev.Role = Device.Device_Role.SR;
-        //            dev.Services = Service.GetServiceForSR(r.Next(1, 5), r.Next(1, 4), r.Next(1, 10), 1, 1, r.Next(1, 3), r.Next(1, 3), r.Next(1, 3), r.Next(1, 3));
-        //            if (list_SP.Exists(p => p.Id.Equals(dev.Id)))
-        //                list_SP.Remove(dev);
-        //            if (!list_SR.Exists(p => p.Id.Equals(dev.Id)))
-        //                list_SR.Add(dev);
-        //        }
-        //        else if (dev.Role == Device.Device_Role.SR)
-        //        {
-        //            dev.Role = Device.Device_Role.SP;
-        //            dev.Services = Service.GetServiceForSP(r.Next(1, 5), r.Next(1, 4), r.Next(1, 10), r.Next(1, 3), r.Next(1, 3), 1, 1);
-        //            dev.SR_IsTaskDone = false;
-        //            if (list_SR.Exists(p => p.Id.Equals(dev.Id)))
-        //                list_SR.Remove(dev);
-        //            if (!list_SP.Exists(p => p.Id.Equals(dev.Id)))
-        //                list_SP.Add(dev);
-        //        }
-        //    }
-
-        //    for (int i = 1; i < 200; i++)
-        //    {
-
-        //        //////***** Removing the prevous information from SR
-        //        list_Dev.Single(p => p.Id.Equals(i)).Potential_SP = new Dictionary<Device, double>();
-        //        list_Dev.Single(p => p.Id.Equals(i)).Trusthworthiness_SP = new Dictionary<Device, double>();
-        //        list_Dev.Single(p => p.Id.Equals(i)).Visited_SP_Feedback = new Dictionary<Device, List<Context_Feedback>>();
-        //        list_Dev.Single(p => p.Id.Equals(i)).Selected_SP = new Dictionary<Device, double>();
-
-        //        //////***** Removing the prevous information from SP
-        //        list_Dev.Single(p => p.Id.Equals(i)).Potential_SR = new Dictionary<Device, double>();
-        //        list_Dev.Single(p => p.Id.Equals(i)).Trusthworthiness_SR = new Dictionary<Device, double>();
-        //        list_Dev.Single(p => p.Id.Equals(i)).Visited_SR_Feedback = new Dictionary<Device, List<Context_Feedback>>();
-        //        list_Dev.Single(p => p.Id.Equals(i)).Selected_SR = new Dictionary<Device, double>();
-        //    }
-        //}
-
         public void Setup_NewRound()
         {
             Random r = new Random();
@@ -1327,6 +1111,9 @@ namespace SimSIoT
             }
         }
 
+        /// <summary>
+        /// Prepares the simulation for a new round, ensuring selected devices retain their roles, and resets round-specific data.
+        /// </summary>
         public void Setup_NewRound(double selectedSR_Device, double selectedSPGood_Device, double selectedSPBad_Device)
         {
             Random r = new Random();
@@ -1456,23 +1243,6 @@ namespace SimSIoT
         /// <param name="trust"></param>
         public void ShowChartSuccessTrustOfRS(int round, double trust)
         {
-            //////Save in the file
-            //StreamWriter sw_Result1 = new StreamWriter("..\\..\\..\\..\\Result_1_success.txt");
-            //try
-            //{
-            //    //Write a line of text
-            //    sw_Result1.WriteLine(round + ','+ trust);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine("Exception: " + e.Message);
-            //}
-            //finally
-            //{
-            //    Console.WriteLine("Executing finally block.");
-            //}
-            //sw_Result1.Close();
-
             /////Show Chart
             if (chartSuccessTrustOfSR.InvokeRequired)
                 chartSuccessTrustOfSR.BeginInvoke((MethodInvoker)delegate
@@ -1489,25 +1259,11 @@ namespace SimSIoT
             }
         }
 
+        /// <summary>
+        /// Plots the trust value of service requesters on the chart for a given round.
+        /// </summary>
         public void ShowChartTrustValueOfRS(int round, double trust)
         {
-            //////Save in the file
-            //StreamWriter sw_Result1 = new StreamWriter("..\\..\\..\\..\\Result_1_success.txt");
-            //try
-            //{
-            //    //Write a line of text
-            //    sw_Result1.WriteLine(round + ','+ trust);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine("Exception: " + e.Message);
-            //}
-            //finally
-            //{
-            //    Console.WriteLine("Executing finally block.");
-            //}
-            //sw_Result1.Close();
-
             /////Show Chart
             if (chartTrustValueOfSR.InvokeRequired)
                 chartTrustValueOfSR.BeginInvoke((MethodInvoker)delegate
@@ -1524,25 +1280,11 @@ namespace SimSIoT
             }
         }
 
+        /// <summary>
+        /// Plots the satisfaction of service requesters on the chart for a given round.
+        /// </summary>
         public void ShowChartSatisfication(int round, double Satisfication)
         {
-            //////Save in the file
-            //StreamWriter sw_Result1 = new StreamWriter("..\\..\\..\\..\\Result_1_success.txt");
-            //try
-            //{
-            //    //Write a line of text
-            //    sw_Result1.WriteLine(round + ','+ trust);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine("Exception: " + e.Message);
-            //}
-            //finally
-            //{
-            //    Console.WriteLine("Executing finally block.");
-            //}
-            //sw_Result1.Close();
-
             /////Show Chart
             if (chartSatisfication.InvokeRequired)
                 chartSatisfication.BeginInvoke((MethodInvoker)delegate
@@ -1559,6 +1301,9 @@ namespace SimSIoT
             }
         }
 
+        /// <summary>
+        /// Saves simulation results to text files for later analysis.
+        /// </summary>
         public void SaveResultOfSimu(Dictionary<int, double> result_SuccessRate, Dictionary<int, List<double>> result_TrustValue, Dictionary<int, double> result_Satisfication, Dictionary<int, double> result_TrustGoodNod, Dictionary<int, double> result_TrustBadNod, Dictionary<int, double> result_MAEGoodNodes, Dictionary<int, double> result_MAEBadNodes)
         {
             ////Save in the file
@@ -1710,6 +1455,9 @@ namespace SimSIoT
             sw_ResultTrustMAEBadNode.Close();
         }
 
+        /// <summary>
+        /// Saves the IDs of selected devices to a text file for tracking.
+        /// </summary>
         public void SaveIdofSelectedDevices(double selectedSR_Id, double selectedSPGoodId,double selectedSPBadId)
         {
             //Writing in the text file 
@@ -1730,6 +1478,9 @@ namespace SimSIoT
             sw_Id.Close();
         }
 
+        /// <summary>
+        /// Transfers friend lists between a service provider and its selected service requester.
+        /// </summary>
         public void TransferFriendLists_With_SelectedSR(Device SP)
         {
             List<int> list_New_SP = new List<int>();
@@ -1758,33 +1509,6 @@ namespace SimSIoT
                         break;
                     }
                 }
-
-                //for (int i = 0; i < SP.Links.Count(); i++)
-                //{
-                //    for (int j = 0; j < SP.Selected_SR.Single().Key.Links.Count(); j++)
-                //    {
-                //        if (!SP.Links[i].Equals(SP.Selected_SR.Single().Key.Links[j]) && !list_New_SR.Contains(SP.Links[i]))
-                //        {
-                //            list_New_SR.Add(SP.Links[i]);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                //for (int i = 0; i < SP.Selected_SR.Single().Key.Links.Count(); i++)
-                //{
-                //    for (int j = 0; j < SP.Links.Count(); j++)
-                //    {
-                //        if (!SP.Selected_SR.Single().Key.Links[i].Equals(SP.Links[j]) && !list_New_SP.Contains(SP.Selected_SR.Single().Key.Links[i]))
-                //        {
-                //            list_New_SP.Add(SP.Selected_SR.Single().Key.Links[i]);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                ////******
-
                 foreach (int item in SP.User.Links)
                 {
                     if (!list_New_SP.Contains(item))
@@ -1806,6 +1530,9 @@ namespace SimSIoT
 
         }
 
+        /// <summary>
+        /// Transfers friend lists between a service provider and all its trustworthy service requesters.
+        /// </summary>
         public void TransferFriendLists_With_All(Device SP)
         {
             List<int> list_New_SP = new List<int>();
@@ -1835,32 +1562,6 @@ namespace SimSIoT
                     }
                 }
 
-                //for (int i = 0; i < SP.Links.Count(); i++)
-                //{
-                //    for (int j = 0; j < SP.Selected_SR.Single().Key.Links.Count(); j++)
-                //    {
-                //        if (!SP.Links[i].Equals(SP.Selected_SR.Single().Key.Links[j]) && !list_New_SR.Contains(SP.Links[i]))
-                //        {
-                //            list_New_SR.Add(SP.Links[i]);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                //for (int i = 0; i < SP.Selected_SR.Single().Key.Links.Count(); i++)
-                //{
-                //    for (int j = 0; j < SP.Links.Count(); j++)
-                //    {
-                //        if (!SP.Selected_SR.Single().Key.Links[i].Equals(SP.Links[j]) && !list_New_SP.Contains(SP.Selected_SR.Single().Key.Links[i]))
-                //        {
-                //            list_New_SP.Add(SP.Selected_SR.Single().Key.Links[i]);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                ////******
-
                 foreach (int item in SP.User.Links)
                 {
                     if (!list_New_SP.Contains(item))
@@ -1882,6 +1583,9 @@ namespace SimSIoT
 
         }
 
+        /// <summary>
+        /// Transfers friend lists from a service requester to its selected service provider (one-sided).
+        /// </summary>
         public void TransferFriendLists_OneSide(Device SR)
         {
             List<int> list_New_SP = new List<int>();
@@ -1910,32 +1614,6 @@ namespace SimSIoT
                         break;
                     }
                 }
-
-                //for (int i = 0; i < SR.Links.Count(); i++)
-                //{
-                //    for (int j = 0; j < SR.Selected_SP.Single().Key.Links.Count(); j++)
-                //    {
-                //        if (!SR.Links[i].Equals(SR.Selected_SP.Single().Key.Links[j]) && !list_New_SP.Contains(SR.Links[i]))
-                //        {
-                //            list_New_SP.Add(SR.Links[i]);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                //for (int i = 0; i < SR.Selected_SP.Single().Key.Links.Count(); i++)
-                //{
-                //    for (int j = 0; j < SR.Links.Count(); j++)
-                //    {
-                //        if (!SR.Selected_SP.Single().Key.Links[i].Equals(SR.Links[j]) && !list_New_SR.Contains(SR.Selected_SP.Single().Key.Links[i]))
-                //        {
-                //            list_New_SR.Add(SR.Selected_SP.Single().Key.Links[i]);
-                //            break;
-                //        }
-                //    }
-                //}
-
-                ////******
 
                 foreach (int item in SR.User.Links)
                 {
@@ -2015,6 +1693,10 @@ namespace SimSIoT
             SR.Trusthworthiness_SP = SR.Potential_SP;
         }
 
+        /// <summary>
+        /// Computes the trust value from a service requester to a service provider.
+        /// </summary>
+        /// <returns>Trust value as a double.</returns>
         public double SR_TrustComputing_SP(Device SR, Device SP)
         {
             double trust_SR_SP=0;
@@ -2029,6 +1711,10 @@ namespace SimSIoT
         }
 
         //***************//
+        /// <summary>
+        /// Calculates the contextual mutuality trust between a service requester and provider based on context vectors and feedback.
+        /// </summary>
+        /// <returns>Mutuality trust value as a double.</returns>
         public double SR_Contextual_Mutuality_Trust_SP(Device SR, Device SP)
         {
             double trust_SR_CMT_SP = 0, trust_SR_CMT_QoS_SP = 0, trust_SR_CMT_Social_SP = 0;
@@ -2121,6 +1807,10 @@ namespace SimSIoT
             return trust_SR_CMT_SP;
         }
 
+        /// <summary>
+        /// Calculates the social similarity trust between a service requester and provider based on friends and communities.
+        /// </summary>
+        /// <returns>Social similarity trust value as a double.</returns>
         public double SR_Trust_SimilaritySocial_SP(Device SR, Device SP)
         {
             double trust_SR_Similarity_SP = 0;
@@ -2143,15 +1833,6 @@ namespace SimSIoT
                     if (list_User[SR.User.Links[i]].GroupCommunities == SR.User.GroupCommunities)
                         list_friendship_Similarity.Add(1);
                 }
-
-                //for (int j = 0; j < SP.User.Links.Count(); j++)
-                //{
-                //    if (SR.User.Links[i].Equals(SP.Links[j]))
-                //        list_friendship_Similarity.Add(1);
-                //    //else
-                //    //    list_friendship_Similarity.Add(0);
-                //}
-
             }
 
             //if (list_friendship_Similarity.Count() != 0 && (SR.User.GroupCommunities.Count() * SP.User.GroupCommunities.Count()) != 0)
@@ -2159,20 +1840,6 @@ namespace SimSIoT
                 sim_F = (double)list_friendship_Similarity.Count() / (Math.Sqrt(SR.User.Links.Count() * SP.User.Links.Count()));
             else
                 sim_F = 0;
-
-            //////***** Calculating Community of Interest Similarity : sim_Com
-            //List<int> list_Comunity_Similarity = new List<int>();
-            //for (int i = 0; i < SR.User.Communities.Count(); i++)
-            //{
-            //    for (int j = 0; j < SP.Communities.Count(); j++)
-            //    {
-            //        if (SR.Communities[i].Equals(SP.Id))
-            //            list_Comunity_Similarity.Add(1);
-            //        else
-            //            list_Comunity_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Com = (double)list_Comunity_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * SP.Visited_Locations.Count());
 
             ////***** Calculating Community of Interest Similarity : sim_Com
             
@@ -2190,26 +1857,17 @@ namespace SimSIoT
             else
                 sim_Com = 0;
 
-            //Calculating Centrality: sim_Cen
-            //List<int> list_VisitedLocation_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Visited_Locations.Count(); i++)
-            //{
-            //    for (int j = 0; j < SP.Visited_Locations.Count(); j++)
-            //    {
-            //        if (SR.Visited_Locations[i].Equals(SP.Visited_Locations[j]))
-            //            list_VisitedLocation_Similarity.Add(1);
-            //        else
-            //            list_VisitedLocation_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Cen = (double) list_VisitedLocation_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * SP.Visited_Locations.Count());
-
+            
             //
             trust_SR_Similarity_SP = w_F * sim_F + w_Com * sim_Com + w_Cen * sim_Cen;
             return trust_SR_Similarity_SP;
         }
      
         //***************//Recommender
+        /// <summary>
+        /// Calculates the contextual social trust from a service requester to a provider using recommendations from friends.
+        /// </summary>
+        /// <returns>Contextual social trust value as a double.</returns>
         public double SR_Contextual_Social_Trust_SP(Device SR, Device SP)
         {
             double trust_SR_CST_SP = 0;
@@ -2344,19 +2002,15 @@ namespace SimSIoT
 
             }
 
-            //double w=(double) 1.0/sum_num;
-            //foreach (double item in sum_Similarity)
-            //{
-            //    sum_sum_Similarity += item * w;
-            //}
-
-            //??????????????????????? Learning algorithm to change the similarity of contexts (the number related to context in the axi
-
             //trust_SR_Sum_Recommends_SP = (double)sum_sum_Similarity;
             trust_SR_Sum_Recommends_SP = sum_sum_Similarity;
             return trust_SR_Sum_Recommends_SP;
         }
 
+        /// <summary>
+        /// Calculates the similarity between a service requester and a recommender (who is also a service requester).
+        /// </summary>
+        /// <returns>Similarity value as a double.</returns>
         public double SR_Trust_Similarity_RecommenderSR(Device SR, Device Recommender_SR)
         {
             double trust_SR_Similarity_SR = 0;
@@ -2368,24 +2022,7 @@ namespace SimSIoT
             //w_F = 0.33; w_Com = 0.33; w_Cen = 0.33;
             w_F = 1;
 
-            ////***** Calculating Friend similarity : sim_F
-            //List<int> list_friendship_Similarity = new List<int>();
-            //for (int i = 0; i < SR.User.Links.Count(); i++)
-            //{
-            //    if (Recommender_SR.User.Links.Contains(SR.User.Links[i]))
-            //        list_friendship_Similarity.Add(1);
-
-            //    //for (int j = 0; j < Recommender_SR.User.Links.Count(); j++)
-            //    //{
-            //    //    if (SR.User.Links[i].Equals(Recommender_SR.User.Links[j]))
-            //    //        list_friendship_Similarity.Add(1);
-            //    //    //else
-            //    //    //    list_friendship_Similarity.Add(0);
-            //    //}
-
-            //}
-            //sim_F = (double) list_friendship_Similarity.Count() / Math.Sqrt(SR.User.Links.Count() * Recommender_SR.User.Links.Count());
-
+            
             ////***** Which we consdier Task Context. if SR and SP have a friend in common, he or she shoud register in the same community group 
             ////***** that shows that freind has same group related to requested task context.
             List<int> list_friendship_Similarity = new List<int>();
@@ -2397,14 +2034,6 @@ namespace SimSIoT
                         list_friendship_Similarity.Add(1);
                 }
 
-                //for (int j = 0; j < SP.User.Links.Count(); j++)
-                //{
-                //    if (SR.User.Links[i].Equals(SP.Links[j]))
-                //        list_friendship_Similarity.Add(1);
-                //    //else
-                //    //    list_friendship_Similarity.Add(0);
-                //}
-
             }
 
             //if (list_friendship_Similarity.Count() != 0 && (SR.User.GroupCommunities.Count() * Recommender_SR.User.GroupCommunities.Count()) != 0)
@@ -2413,20 +2042,6 @@ namespace SimSIoT
             else
                 sim_F = 0;
 
-
-            ////Calculating Community of Interest Similarity : sim_Com
-            //List<int> list_Comunity_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Links.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SR.Links.Count(); j++)
-            //    {
-            //        if (SR.Links[i].Equals(Recommender_SR.Id))
-            //            list_Comunity_Similarity.Add(1);
-            //        else
-            //            list_Comunity_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Com = (double) list_Comunity_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SR.Visited_Locations.Count());
 
             ////***** Calculating Community of Interest Similarity : sim_Com
 
@@ -2445,25 +2060,15 @@ namespace SimSIoT
                 sim_Com = 0;
 
 
-            //Calculating Centrality: sim_Cen
-            //List<int> list_VisitedLocation_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Visited_Locations.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SR.Visited_Locations.Count(); j++)
-            //    {
-            //        if (SR.Visited_Locations[i].Equals(Recommender_SR.Visited_Locations[j]))
-            //            list_VisitedLocation_Similarity.Add(1);
-            //        else
-            //            list_VisitedLocation_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Cen = (double) list_VisitedLocation_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SR.Visited_Locations.Count());
-
             //
             trust_SR_Similarity_SR = w_F * sim_F + w_Com * sim_Com + w_Cen * sim_Cen;
             return trust_SR_Similarity_SR;
         }
 
+        /// <summary>
+        /// Calculates the similarity between a service requester and a recommender (who is a service provider).
+        /// </summary>
+        /// <returns>Similarity value as a double.</returns>
         public double SR_Trust_Similarity_RecommenderSP(Device SR, Device Recommender_SP)
         {
             double trust_SR_Similarity_SP = 0;
@@ -2471,30 +2076,8 @@ namespace SimSIoT
             double sim_F = 0, sim_Com = 0, sim_Cen = 0;
             double w_F=0, w_Com=0, w_Cen=0;
 
-
-            //Calculating w_F, w_L, w_C while w_F + w_L + w_C = 1
-            //w_F = 0.33; w_Com = 0.33; w_Cen = 0.33;
             w_F = 1;
-
-            //****** Calculating Friend similarity : sim_F
-            //List<int> list_friendship_Similarity = new List<int>();
-            //for (int i = 0; i < SR.User.Links.Count(); i++)
-            //{
-            //    if (Recommender_SP.User.Links.Contains(SR.User.Links[i]))
-            //            list_friendship_Similarity.Add(1);
-
-            //    //for (int j = 0; j < Recommender_SP.User.Links.Count(); j++)
-            //    //{
-            //    //    if (SR.User.Links[i].Equals(Recommender_SP.User.Links[j]))
-            //    //        list_friendship_Similarity.Add(1);
-            //    //    //else
-            //    //    //    list_friendship_Similarity.Add(0);
-            //    //}
-
-            //}
-
-            //sim_F = (double) list_friendship_Similarity.Count() / Math.Sqrt(SR.User.Links.Count() * Recommender_SP.User.Links.Count());
-
+          
             ////***** Which we consdier Task Context. if SR and SP have a friend in common, he or she shoud register in the same community group 
             ////***** that shows that freind has same group related to requested task context.
             List<int> list_friendship_Similarity = new List<int>();
@@ -2505,15 +2088,6 @@ namespace SimSIoT
                     if (list_User[SR.User.Links[i]].GroupCommunities == SR.User.GroupCommunities)
                         list_friendship_Similarity.Add(1);
                 }
-
-                //for (int j = 0; j < SP.User.Links.Count(); j++)
-                //{
-                //    if (SR.User.Links[i].Equals(SP.Links[j]))
-                //        list_friendship_Similarity.Add(1);
-                //    //else
-                //    //    list_friendship_Similarity.Add(0);
-                //}
-
             }
 
             //if (list_friendship_Similarity.Count() != 0 && (SR.User.GroupCommunities.Count() * Recommender_SP.User.GroupCommunities.Count()) != 0)
@@ -2521,21 +2095,6 @@ namespace SimSIoT
                 sim_F = (double)list_friendship_Similarity.Count() / (Math.Sqrt(SR.User.Links.Count() * Recommender_SP.User.Links.Count()));
             else
                 sim_F = 0;
-
-            //Calculating Social Contact Similarity: sim_L
-            //List<int> list_VisitedLocation_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Visited_Locations.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SP.Visited_Locations.Count(); j++)
-            //    {
-            //        if (SR.Visited_Locations[i].Equals(Recommender_SP.Visited_Locations[j]))
-            //            list_VisitedLocation_Similarity.Add(1);
-            //        else
-            //            list_VisitedLocation_Similarity.Add(0);
-            //    }
-
-            //}
-            //sim_L = (double) list_VisitedLocation_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SP.Visited_Locations.Count());
 
             ////***** Calculating Community of Interest Similarity : sim_Com
 
@@ -2554,26 +2113,16 @@ namespace SimSIoT
             else
                 sim_Com = 0;
 
-            ////Calculating Community of Interest Similarity : sim_C
-            //List<int> list_Comunity_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Links.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SP.Links.Count(); j++)
-            //    {
-            //        if (SR.Links[i].Equals(Recommender_SP.Id))
-            //            list_Comunity_Similarity.Add(1);
-            //        else
-            //            list_Comunity_Similarity.Add(0);
-            //    }
-
-            //}
-            //sim_C = (double) list_Comunity_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SP.Visited_Locations.Count());
-
+            
             //
             trust_SR_Similarity_SP = w_F * sim_F + w_Com * sim_Com + w_Cen * sim_Cen;
             return trust_SR_Similarity_SP;
         }
 
+        /// <summary>
+        /// Calculates the contextual mutuality trust for a recommender (SP) from the perspective of a service requester.
+        /// </summary>
+        /// <returns>Context_Feedback object with trust value and context info.</returns>
         public Context_Feedback SR_Contextual_Mutuality_Trust__Recommender_SP(Device SR, Device SP)
         {
             double trust_SR_CMT_SP = 0, trust_SR_CMT_QoS_SP = 0, trust_SR_CMT_Social_SP = 0;
@@ -2655,8 +2204,7 @@ namespace SimSIoT
                 trust_SR_CMT_SP = C * trust_SR_CMT_QoS_SP * Math.Pow(Math.E, -distance) + (1-C) * Math.Pow(Math.E, -variation) * feedbacks[feedbacks.Count() - 1];            
             }
 
-            //??????????????????????If recommender didn't do transaction directly with service provider, it gives the trust value based on the QoS and Similarity and If it has feedback, then use it to compute the trust vlue.
-            //then insert the result in the output not in feedback.
+             //then insert the result in the output not in feedback.
             context.Id = SP.Id;
             context.Feedback = trust_SR_CMT_SP;
             context.Location_Service = Unit.GetNumberByUnit(SP.Current_Location);
@@ -2666,6 +2214,10 @@ namespace SimSIoT
             return context;
         }
 
+        /// <summary>
+        /// Calculates the similarity between the context of a service requester and a recommender's context feedback.
+        /// </summary>
+        /// <returns>Similarity value as a double.</returns>
         public double SR_Similarity_Contexts_Recommender_SP(Device SR, Context_Feedback Context_Feedback)
         {
             double sim_Contexts = 0, dis_Context = 0;
@@ -2704,26 +2256,25 @@ namespace SimSIoT
             return sim_Contexts;
         }
 
+        /// <summary>
+        /// Placeholder for learning based on context similarity (not implemented).
+        /// </summary>
         public void Similarity_Contexts_Learning(Device SR, Device SP)
         {
 
         }
 
         //***************//
+        /// <summary>
+        /// Selects the most trustworthy service provider for a service requester based on computed trust values.
+        /// </summary>
+        /// <returns>Dictionary with selected device and its trust value.</returns>
         public Dictionary<Device, double> SR_Decision(Device SR)
         {
             Dictionary<Device, double> selected_SP = new Dictionary<Device, double>();
             Device dev = new Device();
             double trust = 0;
 
-            //foreach (Dictionary<ServiceProvider, double> SP in SR.Potential_SP)
-            //{
-            //    if (SP.Values.Equals(1))
-            //    {
-            //        SR.Trusthworthiness_SP.Add(SP);
-            //    }
-            //}
-            ////????????????????????????
             if (SR.Trusthworthiness_SP.Where(p => p.Value != 0).Count() != 0)
             {
                 //double selected_SP2 = SR.Trusthworthiness_SP.OrderBy(p => p.Value).ToList().First().Single().Value;
@@ -2743,11 +2294,17 @@ namespace SimSIoT
             return selected_SP;
         }
 
+        /// <summary>
+        /// Sends a transaction request from a service requester to a service provider.
+        /// </summary>
         public void SR_Send_Transaction(Device SR, Device SP)
         {
             list_Dev.Single(p => p.Id.Equals(SP.Id)).Potential_SR.Add(SR,0);
         }
 
+        /// <summary>
+        /// Performs post-evaluation for a service requester after a transaction, updating feedback and satisfaction.
+        /// </summary>
         public void SR_PostEvaluation(Device SR, Dictionary<Device, double> selected_SP)
         {
             //Feedback Value
@@ -2764,13 +2321,6 @@ namespace SimSIoT
             Context_Feedback context_feedback = new Context_Feedback();
             Device SP = selected_SP.Single().Key;
             double trust = selected_SP.Single().Value;
-
-            //if (SR.SR_IsTaskDone == true)
-            //{
-            //if (SR.Services.Time_Response.Equals(SP.Services.Time_Response))
-            //    T1 = 0; //True
-            //else
-            //    T1 = 1; //False
 
             if (SP.Services.Time_Response.Equals(Service.TimeResponse.bad))
                 T1 = 1; //Bad//Penalty
@@ -2803,246 +2353,7 @@ namespace SimSIoT
                 satisfication = 1;//bad
             SR.Satisfication = satisfication;
 
-            # region 
-            //////****************************** Tested Ways *******************************
-            ////int list_New_friendship = 0 ;
-            ////List<int> list_New_friendship = new List<int>();
-
-            ////for (int i = 0; i < SP.User.Links.Count(); i++)
-            ////{
-            ////    if (!SR.User.Links.Contains(SP.User.Links[i]) && !list_New_friendship.Contains(SP.User.Links[i]))
-            ////        list_New_friendship.Add(SP.User.Links[i]);
-            ////}
-
-            ////link_Before = SR.User.Links.Count();
-            ////link_After = SR.User.Links.Count() + list_New_friendship.Count();
-
-            ////if (list_New_friendship.Count() > SR.User.Links.Count() / 2)
-            ////    T3 = 0;//true
-            ////else
-            ////    T3 = 1;//False
-            ////Delta_Link = Math.Abs(link_Before - link_After);
-
-            ////if (trust > SP.ground_Trust)
-            ////    T3 = 0;//true
-            ////else
-            ////    T3 = 1;//False
-
-            //// ////////
-
-            ////Delta = Delta_Service + Delta_Time;
-            ////Delta = (double) (Delta_Service + Delta_Time)/(Delta_Link + Delta_Service + Delta_Time);
-            ////Delta = 1 - Math.Abs(SR.ground_Trust - trust);
-            ////Delta = Math.Abs(SR.ground_Trust - trust);
-
-            //////T = T1 * T2 * T3;
-            ////T = T1 * T2 * T3;
-
-            //////1
-            //////1-1....Good
-            ////if (T == 0)
-            ////{
-            ////    //Reward
-            ////    A = Delta + a * (1 - Delta);
-            ////    B = (1 - a) * Delta;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * Delta;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * Delta;
-            ////}
-
-            ////feedback = ((double)A / (A + B)) * (1 - Math.Abs(SR.ground_Trust - trust));
-            ////feedback = ((double)A / (A + B)) * trust;
-
-            ////////1-2
-            ////if (Delta <= 1)
-            ////{
-            ////    //Reward
-            ////    A = Delta + a * (1 - Delta);
-            ////    B = (1 - a) * Delta;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * Delta;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * Delta;
-            ////}
-
-            ////feedback = ((double)A / (A + B)) * trust;
-
-            //////2
-            ////gain = SR.Services.Speed;
-            ////gain = 0.8;
-            //////loss = SR.Services.Cost;
-            ////loss = 0.2;
-            ////if (Delta <= 2)
-            ////{
-            ////    //Reward
-            ////    A = gain + a * (1 - gain);
-            ////    B = (1 - a) * loss;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * gain;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * loss;
-            ////}
-
-            ////feedback = ((double)A / (A + B)) * trust;
-            ////feedback = 1 - Math.Abs(SR.ground_Trust - trust);
-
-            //////3
-            ////if (Delta <= 2)
-            ////{
-            ////    feedback = trust;
-            ////}
-            ////else
-            ////{
-            ////    feedback = 1 - trust;
-            ////}
-
-            //////4
-            ////if (Delta <= 1)
-            ////{
-            ////    //Reward
-            ////    A = trust + a * (1 - trust);
-            ////    B = (1 - a) * trust;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * trust;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * trust;
-            ////}
-
-            ////feedback = ((double)A / (A + B));
-
-            //////5....Good
-            ////if (T == 0)
-            ////{
-            ////    //Reward
-            ////    A = Delta + a * (1 - Delta);
-            ////    B = (1 - a) * Delta;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * Delta;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * Delta;
-            ////}
-
-            //////////6....So So
-            ////if (SR.Visited_SP_Feedback.Count != 0 && SR.Visited_SP_Feedback.Any(p => p.Key.Id.Equals(SP.Id)))
-            ////{
-            ////    feedback_last = SR.Visited_SP_Feedback.Single(p => p.Key.Id.Equals(SP.Id)).Value.Last().Feedback;
-            ////}
-            ////else
-            ////    feedback_last = 1;
-
-            ////if (T == 0)
-            ////{
-            ////    //Reward
-            ////    A = feedback_last + a * (1 - feedback_last);
-            ////    B = (1 - a) * Delta;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * feedback_last;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * feedback_last;
-            ////}
-
-            ////feedback = ((double)A / (A + B)) * trust;
-
-            //////5....Good
-            ////A = SR.ground_Trust;
-            ////B = 1 - SR.ground_Trust;
-
-            ////if (T == 0)
-            ////{
-            ////    //Reward
-            ////    A = Delta + a * (1 - Delta);
-            ////    B = (1 - a) * Delta;
-            ////}
-            ////else
-            ////{
-            ////    //Penalty
-            ////    A = (1 - b) * Delta;
-            ////    B = (double)(b / (x - 1)) + (1 - b) * Delta;
-            ////}
-
-            ////feedback = ((double)A / (A + B));
-
-            //////6,5......So So
-            ////feedback = ((double)A / (A + B)) * feedback_last;
-
-            ////////7.....So So
-            ////feedback = (1 - Delta) * feedback_last; 
-
-            //////****************************
-
-            ////////// if (Delta>=2)
-            ////////// {
-            //////////     //Reward
-            //////////     A = gain + a * (1 - gain);
-            //////////     B = (1 - a) * loss;
-            ////////// }
-            ////////// else
-            ////////// {
-            //////////     //Penalty
-            //////////     A = (1 - b) * gain;
-            //////////     B = (double)(b / (x - 1)) + (1 - b) * loss;
-            ////////// }
-
-            //////// //if (T == 0)
-            //////// //{
-            //////// //    //Reward
-            //////// //    A = trust + a * (1 - trust);
-            //////// //    B = (1 - a) * trust;
-            //////// //}
-            //////// //else
-            //////// //{
-            //////// //    //Penalty
-            //////// //    A = (1 - b) * trust;
-            //////// //    B = (double)(b / (x - 1)) + (1 - b) * trust;
-            //////// //}
-
-            //***************************************** Witout Learning Methods **********************************************
-            ////A = trust;
-            ////B = 1 - trust;
-            ////feedback = (double)A / (A + B);
-
-            //////////feedback = (double)A / (A + B);
-            //*********************************************************************************************************************
-
-            //////////double current_Satisfication = r.Next(0, 1);
-            //////////A = current_Satisfication;
-            //////////B = (1 - current_Satisfication);
-
-            //////////feedback = trust - Delta;
-            //////////feedback = trust;
-            //////*************************************************************************************************************
-            #endregion
-
-            //Delta = Math.Abs(SP.ground_Trust - trust);
-            //Delta = SP.ground_Trust;
-
-            //T = T1 * T2 * T3;
-            //if (T3 == 0)
-            //{
-            //    //Reward
-            //    A = Delta + a * (1 - Delta);
-            //    B = (1 - a) * Delta;
-            //}
-            //else
-            //{
-            //    //Penalty
-            //    A = (1 - b) * Delta;
-            //    B = (double)(b / (x - 1)) + (1 - b) * Delta;
-            //}
-
+            
             //////////Without Learning
             A = SP.ground_Trust;
             B = 1 - SP.ground_Trust;
@@ -3074,6 +2385,9 @@ namespace SimSIoT
 
         }
 
+        /// <summary>
+        /// Placeholder for moving a service requester to a new location (not implemented).
+        /// </summary>
         public void SR_Move(Device SR)
         {
         }
@@ -3101,10 +2415,13 @@ namespace SimSIoT
                 SP.Potential_SR.Add(SR,trust_SP_SR);
             }
 
-            ////*****???????? if trust value of Potential_SR is more than XX add into Trusthworthiness_SR
             SP.Trusthworthiness_SR = SP.Potential_SR;
         }
 
+        /// <summary>
+        /// Computes the trust value from a service provider to a service requester.
+        /// </summary>
+        /// <returns>Trust value as a double.</returns>
         public double SP_TrustComputing_SR(Device SP, Device SR)
         {
             //double A = 0.7;
@@ -3117,6 +2434,10 @@ namespace SimSIoT
         }
 
         //***************//
+        /// <summary>
+        /// Calculates the contextual mutuality trust between a service provider and requester based on context vectors and feedback.
+        /// </summary>
+        /// <returns>Mutuality trust value as a double.</returns>
         public double SP_Contextual_Mutuality_Trust_SR(Device SP, Device SR)
         {
             double trust_SP_CMT_SR = 0, trust_SP_CMT_QoS_SR = 0;
@@ -3187,7 +2508,6 @@ namespace SimSIoT
             }
             else if (SP.Visited_SR_Feedback.Any(p => p.Key.Id.Equals(SR.Id) && SP.Visited_SR_Feedback.Single(q => q.Key.Id.Equals(SR.Id)).Value.Count() != 0))
             {
-                ////???????????????????? Select 5 last feedbacks
                 context_feedbacks = SP.Visited_SR_Feedback.Single(p => p.Key.Id.Equals(SR.Id)).Value;
                 feedbacks = context_feedbacks.Select(p => p.Feedback).ToList();
                 decay = Get_Decay(feedbacks);
@@ -3200,6 +2520,10 @@ namespace SimSIoT
             return trust_SP_CMT_SR;
         }
 
+        /// <summary>
+        /// Calculates the contextual social trust from a service provider to a requester using recommendations from friends.
+        /// </summary>
+        /// <returns>Contextual social trust value as a double.</returns>
         public double SP_Contextual_Social_Trust_SR(Device SP, Device SR)
         {
             double trust_SP_Sum_Recommends_SR = 0;
@@ -3211,28 +2535,7 @@ namespace SimSIoT
             Dictionary<Device, double> Dic_SimSR = new Dictionary<Device, double>();
             Dictionary<int, double> list_Similarity = new Dictionary<int, double>();
 
-            //????????????????? Recommenders are just friends??
-            //calculating similarity with friends as Recommenders
-            //for (int i = 0; i < SP.User.Links.Count(); i++)
-            //{
-            //    int id_Recommender = SP.User.Links[i];
-            //    //if (id_Recommender < 100)
-            //    if (list_SP.Exists(p => p.Id.Equals(id_Recommender)))
-            //    {
-            //        similarity = SP_Trust_Similarity_RecommenderSP(SP, list_SP.Single(p => p.Id.Equals(id_Recommender)));
-
-            //        Dic_SimSP.Add(list_SP.Single(q => q.Id.Equals(id_Recommender)), similarity);
-            //    }
-            //    else
-            //    {
-            //        similarity = SP_Trust_Similarity_RecommenderSR(SP, list_SR.Single(p => p.Id.Equals(id_Recommender)));
-
-            //        Dic_SimSR.Add(list_SR.Single(q => q.Id.Equals(id_Recommender)), similarity);
-            //    }
-
-            //    ////*******************Select the highest similarti
-            //    //list_SR_similarity.Add(Dic_Sim);
-            //}
+            
             //step1: select friends with highest similarity
             //Step1-1: compute the sum social similarity trust
             for (int i = 0; i < SP.User.Links.Count(); i++)
@@ -3299,11 +2602,15 @@ namespace SimSIoT
 
                 sum_sum_Similarity += trust_direct_recommender;
             }
-            //??????????????????????? Learning algorithm to change the similarity of contexts (the number related to context in the axi
+            
             trust_SP_Sum_Recommends_SR = sum_sum_Similarity;
             return trust_SP_Sum_Recommends_SR;
         }
 
+        /// <summary>
+        /// Calculates the similarity between a service provider and a recommender (who is a service requester).
+        /// </summary>
+        /// <returns>Similarity value as a double.</returns>
         public double SP_Trust_Similarity_RecommenderSR(Device SP, Device Recommender_SR)
         {
             double trust_SP_Similarity_SR = 0;
@@ -3315,17 +2622,6 @@ namespace SimSIoT
             //w_F = 0.33; w_Com = 0.33; w_Cen = 0.33;
             w_F = 1;
 
-            ////***** Calculating Friend similarity : sim_F
-            //List<int> list_friendship_Similarity = new List<int>();
-            //for (int i = 0; i < SP.User.Links.Count(); i++)
-            //{
-            //    if (Recommender_SR.User.Links.Contains(SP.User.Links[i]))
-            //        list_friendship_Similarity.Add(1);
-            //    //else
-            //    //    list_friendship_Similarity.Add(0);
-            //}
-            //sim_F = (double) list_friendship_Similarity.Count() / Math.Sqrt(SP.User.Links.Count() * Recommender_SR.User.Links.Count());
-
             ////***** Which we consdier Task Context. if SR and SP have a friend in common, he or she shoud register in the same community group 
             ////***** that shows that freind has same group related to requested task context.
             List<int> list_friendship_Similarity = new List<int>();
@@ -3336,15 +2632,6 @@ namespace SimSIoT
                     //if (list_User[SP.User.Links[i]].GroupCommunities == SP.User.GroupCommunities)
                         list_friendship_Similarity.Add(1);
                 }
-
-                //for (int j = 0; j < SP.User.Links.Count(); j++)
-                //{
-                //    if (SR.User.Links[i].Equals(SP.Links[j]))
-                //        list_friendship_Similarity.Add(1);
-                //    //else
-                //    //    list_friendship_Similarity.Add(0);
-                //}
-
             }
 
             //if (list_friendship_Similarity.Count() != 0 && (SP.User.GroupCommunities.Count() * Recommender_SR.User.GroupCommunities.Count()) != 0)
@@ -3353,20 +2640,7 @@ namespace SimSIoT
             else
                 sim_F = 0;
 
-            ////Calculating Community of Interest Similarity : sim_Com
-            //List<int> list_Comunity_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Links.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SR.Links.Count(); j++)
-            //    {
-            //        if (SR.Links[i].Equals(Recommender_SR.Id))
-            //            list_Comunity_Similarity.Add(1);
-            //        else
-            //            list_Comunity_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Com = (double) list_Comunity_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SR.Visited_Locations.Count());
-
+           
             ////***** Calculating Community of Interest Similarity : sim_Com
 
             List<int> list_GroupComunity_Similarity = new List<int>();
@@ -3385,25 +2659,15 @@ namespace SimSIoT
                 sim_Com = 0;
 
 
-            //Calculating Centrality: sim_Cen
-            //List<int> list_VisitedLocation_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Visited_Locations.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SR.Visited_Locations.Count(); j++)
-            //    {
-            //        if (SR.Visited_Locations[i].Equals(Recommender_SR.Visited_Locations[j]))
-            //            list_VisitedLocation_Similarity.Add(1);
-            //        else
-            //            list_VisitedLocation_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Cen =  (double) list_VisitedLocation_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SR.Visited_Locations.Count());
-
             //
             trust_SP_Similarity_SR = w_F * sim_F + w_Com * sim_Com + w_Cen * sim_Cen;
             return trust_SP_Similarity_SR;
         }
 
+        /// <summary>
+        /// Calculates the similarity between a service provider and a recommender (who is a service provider).
+        /// </summary>
+        /// <returns>Similarity value as a double.</returns>
         public double SP_Trust_Similarity_RecommenderSP(Device SP, Device Recommender_SP)
         {
             double trust_SP_Similarity_SP = 0;
@@ -3415,18 +2679,7 @@ namespace SimSIoT
             //Calculating w_F, w_L, w_C while w_F + w_L + w_C = 1
             //w_F = 0.33; w_Com = 0.33; w_Cen = 0.33;
             w_F = 1; 
-
-            //////****** Calculating Friend similarity : sim_F
-            //List<int> list_friendship_Similarity = new List<int>();
-            //for (int i = 0; i < SP.User.Links.Count(); i++)
-            //{
-            //    if (Recommender_SP.User.Links.Contains(SP.User.Links[i]))
-            //        list_friendship_Similarity.Add(1);
-            //}
-            //sim_F = (double) list_friendship_Similarity.Count() / Math.Sqrt(SP.User.Links.Count() * Recommender_SP.User.Links.Count());
-
-            ////***** Which we consdier Task Context. if SR and SP have a friend in common, he or she shoud register in the same community group 
-            ////***** that shows that freind has same group related to requested task context.
+            
             List<int> list_friendship_Similarity = new List<int>();
             for (int i = 0; i < SP.User.Links.Count(); i++)
             {
@@ -3436,14 +2689,6 @@ namespace SimSIoT
                         list_friendship_Similarity.Add(1);
                 }
 
-                //for (int j = 0; j < SP.User.Links.Count(); j++)
-                //{
-                //    if (SR.User.Links[i].Equals(SP.Links[j]))
-                //        list_friendship_Similarity.Add(1);
-                //    //else
-                //    //    list_friendship_Similarity.Add(0);
-                //}
-
             }
 
             //if (list_friendship_Similarity.Count() != 0 && (SP.User.GroupCommunities.Count() * Recommender_SP.User.GroupCommunities.Count()) != 0)
@@ -3452,21 +2697,6 @@ namespace SimSIoT
             else
                 sim_F = 0;
 
-
-            //Calculating Social Contact Similarity: sim_L
-            //List<int> list_VisitedLocation_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Visited_Locations.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SP.Visited_Locations.Count(); j++)
-            //    {
-            //        if (SR.Visited_Locations[i].Equals(Recommender_SP.Visited_Locations[j]))
-            //            list_VisitedLocation_Similarity.Add(1);
-            //        else
-            //            list_VisitedLocation_Similarity.Add(0);
-            //    }
-
-            //}
-            //sim_L = (double) list_VisitedLocation_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SP.Visited_Locations.Count());
 
             ////***** Calculating Community of Interest Similarity : sim_Com
 
@@ -3485,27 +2715,14 @@ namespace SimSIoT
             else
                 sim_Com = 0;
 
-
-            ////Calculating Community of Interest Similarity : sim_C
-            //List<int> list_Comunity_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Links.Count(); i++)
-            //{
-            //    for (int j = 0; j < Recommender_SP.Links.Count(); j++)
-            //    {
-            //        if (SR.Links[i].Equals(Recommender_SP.Id))
-            //            list_Comunity_Similarity.Add(1);
-            //        else
-            //            list_Comunity_Similarity.Add(0);
-            //    }
-
-            //}
-            //sim_C = (double) list_Comunity_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * Recommender_SP.Visited_Locations.Count());
-
-            //
             trust_SP_Similarity_SP = w_F * sim_F + w_Com * sim_Com + w_Cen * sim_Cen;
             return trust_SP_Similarity_SP;
         }
 
+        /// <summary>
+        /// Calculates the contextual mutuality trust for a recommender (SR) from the perspective of a service provider.
+        /// </summary>
+        /// <returns>Context_Feedback object with trust value and context info.</returns>
         public Context_Feedback SP_Contextual_Mutuality_Trust__Recommender_SR(Device SP, Device SR)
         {
             double trust_SP_CMT_SR = 0, trust_SP_CMT_QoS_SR = 0;
@@ -3569,7 +2786,7 @@ namespace SimSIoT
                 trust_SP_CMT_SR = C * trust_SP_CMT_QoS_SR + (1-C) * Math.Pow(Math.E, -variation) * feedbacks[feedbacks.Count() - 1] ;
 
             }
-            //??????????????????????If recommender didn't do transaction directly with service provider, it gives the trust value based on the QoS and Similarity and If it has feedback, then use it to compute the trust vlue.
+            
             //then insert the result in the output not in feedback.
             context.Id = SR.Id;
             context.Feedback = trust_SP_CMT_SR;
@@ -3579,6 +2796,10 @@ namespace SimSIoT
             return context;
         }
 
+        /// <summary>
+        /// Calculates the social similarity trust between a service provider and a service requester based on friends and communities.
+        /// </summary>
+        /// <returns>Social similarity trust value as a double.</returns>
         public double SP_Trust_SimilaritySocial_SR(Device SP, Device SR)
         {
             double trust_SR_Similarity_SP = 0;
@@ -3589,15 +2810,6 @@ namespace SimSIoT
             //Calculating w_F, w_L, w_C while w_F + w_L + w_C = 1
             //w_F = 0.33; w_Com = 0.33; w_Cen = 0.33;
             w_F = 1;
-
-            //////***** Calculating Friend similarity : sim_F
-            //List<int> list_friendship_Similarity = new List<int>();
-            //for (int i = 0; i < SR.User.Links.Count(); i++)
-            //{
-            //    if (SP.User.Links.Contains(SR.User.Links[i]))
-            //        list_friendship_Similarity.Add(1);
-            //}
-            //sim_F = (double) list_friendship_Similarity.Count() / Math.Sqrt(SR.User.Links.Count() * SP.User.Links.Count());
 
             ////***** Which we consdier Task Context. if SR and SP have a friend in common, he or she shoud register in the same community group 
             ////***** that shows that freind has same group related to requested task context.
@@ -3610,14 +2822,6 @@ namespace SimSIoT
                         list_friendship_Similarity.Add(1);
                 }
 
-                //for (int j = 0; j < SP.User.Links.Count(); j++)
-                //{
-                //    if (SR.User.Links[i].Equals(SP.Links[j]))
-                //        list_friendship_Similarity.Add(1);
-                //    //else
-                //    //    list_friendship_Similarity.Add(0);
-                //}
-
             }
 
             //if (list_friendship_Similarity.Count() != 0 && (SR.User.GroupCommunities.Count() * SP.User.GroupCommunities.Count()) != 0)
@@ -3626,20 +2830,7 @@ namespace SimSIoT
             else
                 sim_F = 0;
 
-            ////Calculating Community of Interest Similarity : sim_Com
-            //List<int> list_Comunity_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Links.Count(); i++)
-            //{
-            //    for (int j = 0; j < SP.Links.Count(); j++)
-            //    {
-            //        if (SR.Links[i].Equals(SP.Id))
-            //            list_Comunity_Similarity.Add(1);
-            //        else
-            //            list_Comunity_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Com = (double) list_Comunity_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * SP.Visited_Locations.Count());
-
+            
             ////***** Calculating Community of Interest Similarity : sim_Com
 
             List<int> list_GroupComunity_Similarity = new List<int>();
@@ -3657,25 +2848,16 @@ namespace SimSIoT
             else
                 sim_Com = 0;
 
-            //Calculating Centrality: sim_Cen
-            //List<int> list_VisitedLocation_Similarity = new List<int>();
-            //for (int i = 0; i < SR.Visited_Locations.Count(); i++)
-            //{
-            //    for (int j = 0; j < SP.Visited_Locations.Count(); j++)
-            //    {
-            //        if (SR.Visited_Locations[i].Equals(SP.Visited_Locations[j]))
-            //            list_VisitedLocation_Similarity.Add(1);
-            //        else
-            //            list_VisitedLocation_Similarity.Add(0);
-            //    }
-            //}
-            //sim_Cen = (double) list_VisitedLocation_Similarity.Count() / Math.Sqrt(SR.Visited_Locations.Count() * SP.Visited_Locations.Count());
-
+           
             //
             trust_SR_Similarity_SP = w_F * sim_F + w_Com * sim_Com + w_Cen * sim_Cen;
             return trust_SR_Similarity_SP;
         }
 
+        /// <summary>
+        /// Calculates the similarity between the context of a service requester and a recommender's context feedback (from SP's perspective).
+        /// </summary>
+        /// <returns>Similarity value as a double.</returns>
         public double SP_Similarity_Contexts_Recommender_SR(Device SR, Context_Feedback Context_Feedback)
         {
             double sim_Contexts = 0, dis_Context = 0;
@@ -3694,17 +2876,14 @@ namespace SimSIoT
             return sim_Contexts;
         }
 
+        /// <summary>
+        /// Selects the most trustworthy service requester for a service provider based on computed trust values.
+        /// </summary>
+        /// <returns>Dictionary with selected device and its trust value.</returns>
         public Dictionary<Device, double> SP_Decision(Device SP)
         {
             Dictionary<Device, double> selected_SR = new Dictionary<Device, double>();
-            //foreach (Dictionary<ServiceProvider, double> SP in SR.Potential_SP)
-            //{
-            //    if (SP.Values.Equals(1))
-            //    {
-            //        SR.Trusthworthiness_SP.Add(SP);
-            //    }
-            //}
-            ////????????????????????????
+            
             //double selected_SP2 = SR.Trusthworthiness_SP.OrderBy(p => p.Value).ToList().First().Single().Value;
 
             if (SP.Trusthworthiness_SR.Count() != 0)
@@ -3724,11 +2903,17 @@ namespace SimSIoT
             return selected_SR;
         }
 
+        /// <summary>
+        /// Placeholder for service provider transaction logic (not implemented).
+        /// </summary>
         public void SP_Transaction(Device SP)
         {
 
         }
 
+        /// <summary>
+        /// Performs post-evaluation for a service provider after a transaction, updating feedback for the selected service requester.
+        /// </summary>
         public void SP_PostEvaluation(Device SP, Dictionary<Device, double> selected_SR)
         {
             //Feedback Value
@@ -3768,48 +2953,7 @@ namespace SimSIoT
                 else
                     T3 = 0;//Good//Reward
 
-                ///////
-                //List<int> list_New_friendship = new List<int>();
-                //for (int i = 0; i < SR.User.Links.Count(); i++)
-                //{
-                //    if (!SP.User.Links.Contains(SR.User.Links[i]) && !list_New_friendship.Contains(SR.User.Links[i]))
-                //        list_New_friendship.Add(SR.User.Links[i]);
-                //}
-
-                //link_Before = SR.User.Links.Count();
-                //link_After = SR.User.Links.Count() + list_New_friendship.Count();
-
-                //if (list_New_friendship.Count() > SR.User.Links.Count() / 2)
-                //    T3 = 0;//true
-                //else
-                //    T3 = 1;//False
-                //Delta_Link = Math.Abs(link_Before - link_After);
-
-                ////////
-                //Delta = Delta_Link + Delta_Resource + Delta_Time;
-                //Delta = (double)(Delta_Resource + Delta_Time) / (Delta_Link + Delta_Resource + Delta_Time);
-                //Delta = 1 - Math.Abs(SR.ground_Trust - trust);
-                //Delta = SP.ground_Trust;
-                //T = T1 * T2 * T3;
-                //T = T1 * T2 * T3;
-
-                ////1-Good
-                //if (T == 0)
-                //{
-                //    //Reward
-                //    A = Delta + a * (1 - Delta);
-                //    B = (1 - a) * Delta;
-                //}
-                //else
-                //{
-                //    //Penalty
-                //    A = (1 - b) * Delta;
-                //    B = (b / (x - 1)) + (1 - b) * Delta;
-                //}
-
-                //feedback = 1 - Math.Abs(SR.ground_Trust - trust);
-                //feedback = (double) (A / (A + B) * trust);
-
+               
                 ////2-Good
                 A = SR.ground_Trust;
                 B = 1 - SR.ground_Trust;
@@ -3833,6 +2977,9 @@ namespace SimSIoT
             }
         }
 
+        /// <summary>
+        /// Performs post-evaluation for a service provider after transactions with all trustworthy service requesters, updating feedback.
+        /// </summary>
         public void SP_PostEvaluation(Device SP)
         {
             //Feedback Value
@@ -3874,44 +3021,8 @@ namespace SimSIoT
                 else
                     T3 = 0;//Good//Reward
 
-                ///////
-                //List<int> list_New_friendship = new List<int>();
-                //for (int i = 0; i < SR.Key.User.Links.Count(); i++)
-                //{
-                //    if (!SP.User.Links.Contains(SR.Key.User.Links[i]) && !list_New_friendship.Contains(SR.Key.User.Links[i]))
-                //        list_New_friendship.Add(SR.Key.User.Links[i]);
-                //}
-
-                //link_Before = SR.Key.User.Links.Count();
-                //link_After = SR.Key.User.Links.Count() + list_New_friendship.Count();
-
-                //if (list_New_friendship.Count() > SR.Key.User.Links.Count() / 2)
-                //    T3 = 0;//true
-                //else
-                //    T3 = 1;//False
-                //Delta_Link = Math.Abs(link_Before - link_After);
-
-                ////////
-                //Delta = Delta_Link + Delta_Resource + Delta_Time;
-                //Delta = (double) (Delta_Resource + Delta_Time) / (Delta_Link + Delta_Resource + Delta_Time);
-
+                
                 Delta = 1 - Math.Abs(SR.Key.ground_Trust - SR.Value);
-
-                ////T = T1 * T2 * T3;
-                //T = T1 * T2 * T3;
-
-                //if (T == 0)
-                //{
-                //    //Reward
-                //    A = Delta + a * (1 - Delta);
-                //    B = (1 - a) * Delta;
-                //}
-                //else
-                //{
-                //    //Penalty
-                //    A = (1 - b) * Delta;
-                //    B = (b / (x - 1)) + (1 - b) * Delta;
-                //}
 
                 //feedback = 1 - Math.Abs(SR.Key.ground_Trust - SR.Value );
                 //feedback = (double) (A / (A + B) * trust);
@@ -3941,6 +3052,5 @@ namespace SimSIoT
         }
 
         //*********************************************************END************************************************************//
-
     }
 }
